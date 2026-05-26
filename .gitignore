@@ -1,33 +1,66 @@
+# =========================
+# Quarto
+# =========================
+_site/
+.quarto/
+.quarto-cache/
+**/*.quarto_ipynb
+
+# =========================
+# R session / environment
+# =========================
+.Rhistory
+.Rapp.history
+.RData
+.RDataTmp
+.Ruserdata
+.Renviron
+
+# =========================
 # RStudio
+# =========================
 .Rproj.user/
 
-# R session files
-.Rhistory
-.RData
-.Ruserdata
-
-# Quarto / knitr cache
+# =========================
+# knitr / R Markdown cache
+# =========================
 *_cache/
-.cache/
-.quarto/
-*_files/
+cache/
 
-# Rendered output
-*.html
-*.pdf
-*.png
-
-# Rendered markdown
+# temporary markdown
 *.utf8.md
 *.knit.md
 
-# OS files
+# =========================
+# Build artifacts
+# =========================
+*.pdf
+
+# =========================
+# OS / editor junk
+# =========================
+*~
+\#*\#
 .DS_Store
-Thumbs.db
+.emacs.desktop
+.emacs.desktop.lock
+auto-save-list/
+tramp/
+.\#*
 
-# Environment / package management
-.Renviron
-.Rprofile
+# =========================
+# Scratch / experiments
+# =========================
+scratch.*
 
-# Editor settings
+# =========================
+# Editor / IDE
+# =========================
 .vscode/
+
+# =========================
+# Misc
+# =========================
+.github/copilot-instructions.md
+.positron-temp-*.png
+/.quarto/

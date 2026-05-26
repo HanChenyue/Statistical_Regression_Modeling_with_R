@@ -1,0 +1,8 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  sidebar:
+    contents:
+      - chapters/chapter1.qmd
