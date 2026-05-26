@@ -13,7 +13,7 @@ library(xtable)
 ```
 
 ```{r}
-dWHO <- read.csv("WHOLifeExpectancy.csv", header = T)
+dWHO <- read.csv("datasets/WHOLifeExpectancy.csv", header = T)
 dim(dWHO)
 ```
 
