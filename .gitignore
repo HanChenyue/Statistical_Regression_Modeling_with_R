@@ -1,0 +1,33 @@
+# RStudio
+.Rproj.user/
+
+# R session files
+.Rhistory
+.RData
+.Ruserdata
+
+# Quarto / knitr cache
+*_cache/
+.cache/
+.quarto/
+*_files/
+
+# Rendered output
+*.html
+*.pdf
+*.png
+
+# Rendered markdown
+*.utf8.md
+*.knit.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment / package management
+.Renviron
+.Rprofile
+
+# Editor settings
+.vscode/

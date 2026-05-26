@@ -1,0 +1,316 @@
+---
+title: "Chapter 1"
+format: html
+---
+
+# Main Text
+
+```{r}
+library(ggplot2)
+library(janitor)
+library(car)
+library(xtable)
+```
+
+```{r}
+dWHO <- read.csv("WHOLifeExpectancy.csv", header = T)
+dim(dWHO)
+```
+
+```{r}
+dWHO <- clean_names(dWHO)
+```
+
+
+```{r}
+slm1 <- lm(formula = life_expectancy ~ year, data = dWHO)
+summary(slm1)
+```
+
+```{r}
+attributes(slm1)
+```
+
+```{r}
+slm1$coefficients
+```
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5
+plot(life_expectancy ~ year, xlab = "Year", ylab = "Life Expectancy", dWHO)
+abline(slm1, lwd = 3, col = "red")
+```
+
+```{r}
+residualPlots(slm1)
+```
+
+```{r}
+qqPlot(slm1)
+```
+
+```{r}
+mlm0 <- lm(life_expectancy ~ year * status, data = dWHO)
+summary(mlm0)
+```
+
+```{r}
+anova(mlm0)
+```
+
+```{r}
+mlm1 <- lm(life_expectancy ~ year + status, data = dWHO)
+summary(mlm1)
+```
+
+```{r}
+knitr::kable(
+  round(xtable(mlm1), digits = 4),
+  caption = "Summary of the Parameter Estimation",
+  booktabs = TRUE
+)
+```
+
+```{r}
+#| fig-width: 6
+#| fig-height: 4
+plot(
+  life_expectancy ~ year,
+  xlab = "Year",
+  ylab = "Life Expectancy",
+  las = 1,
+  pch = 3:4,
+  col = c("blue", "red"),
+  data = dWHO
+)
+abline(mlm1$coef[1], mlm1$coef[2], lwd = 3, lty = 8, col = "blue")
+abline(mlm1$coef[1] + mlm1$coef[3], mlm1$coef[2], lwd = 3, lty = 4, col = "red")
+```
+
+```{r}
+dt <- dWHO[complete.cases(dWHO), ]
+dim(dWHO)
+```
+
+```{r}
+dim(dt)
+```
+
+```{r}
+mlm2 <- lm(life_expectancy ~ ., data = dt[, -1])
+summary(mlm2)
+```
+
+```{r}
+mlm3 <- step(object = mlm2, direction = "both")
+```
+
+```{r}
+summary(mlm3)
+```
+
+```{r}
+#| fig-width: 5
+#| fig-height: 3
+hist(
+  mlm3$residuals,
+  main = "Residual Distribution",
+  xlab = "Residuals from mlm3"
+)
+```
+
+```{r}
+#| fig-width: 6
+#| fig-height: 4
+qqnorm(mlm3$residuals, main = "Normal Q-Q Plot of Residuals")
+qqline(mlm3$residuals)
+```
+
+```{r}
+#| fig-width: 6
+#| fig-height: 4
+qqPlot(mlm3, distribution = "norm")
+```
+
+p-value is small, so we reject the null hypothesis of normality of residuals. This is mostly because of the outliers shown in the Q-Q plot.
+
+```{r}
+shapiro.test(mlm3$residuals)
+```
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+car::residualPlots(mlm3, layout = c(3, 5))
+```
+
+# Exercises
+
+## Exercise 1.1
+
+- status
+  - gdp: development status may amplify/dampen the effect of wealth
+- status
+  - schooling: education's impact likely differs by Developed vs. Developing
+
+```{r}
+mlm_interaction <- lm(
+  life_expectancy ~ . + status:gdp + status:schooling,
+  data = dt[, -1]
+)
+summary(mlm_interaction)
+```
+
+```{r}
+summary(mlm3)
+```
+
+```{r}
+anova(mlm3, mlm_interaction)
+```
+
+The interaction model has a significantly better fit, suggesting that the effects of gdp and schooling on life expectancy differ by development status.
+
+## Exercise 1.2
+
+```{r}
+#| fig-width: 5
+#| fig-height: 3
+hist(
+  mlm_interaction$residuals,
+  main = "Residual Distribution",
+  xlab = "Residuals from mlm_interaction"
+)
+```
+
+```{r}
+#| fig-width: 6
+#| fig-height: 4
+qqnorm(mlm_interaction$residuals, main = "Normal Q-Q Plot of Residuals")
+qqline(mlm_interaction$residuals)
+```
+
+```{r}
+#| fig-width: 6
+#| fig-height: 4
+qqPlot(mlm_interaction, distribution = "norm")
+```
+
+p-value is small, so we reject the null hypothesis of normality of residuals. This is mostly because of the outliers shown in the Q-Q plot.
+
+```{r}
+shapiro.test(mlm_interaction$residuals)
+```
+
+## Exercise 1.3                                                                                              
+`residualPlots(mlm3)` showed non-linear patterns for several variable, suggesting that quadratic terms may improve fit. We add them to `mlm3` and compare.                                          
+
+```{r}                                                                                                       
+mlm3_quad <- lm(
+  life_expectancy ~ year +
+    status +
+    adult_mortality +
+    infant_deaths +
+    alcohol +
+    percentage_expenditure +
+    bmi +
+    under_five_deaths +
+    total_expenditure +
+    diphtheria +
+    hiv_aids +
+    thinness_5_9_years +
+    income_composition_of_resources +
+    schooling +
+    I(adult_mortality^2) +
+    I(alcohol^2) +
+    I(percentage_expenditure^2) +
+    I(under_five_deaths^2) +
+    I(diphtheria^2) +
+    I(hiv_aids^2) +
+    I(thinness_5_9_years^2) +
+    I(income_composition_of_resources^2),
+  data = dt[, -1]
+)
+summary(mlm3_quad)
+```
+
+```{r}                                                                                                       
+#| fig-width: 10                                                                                             
+#| fig-height: 6                                                                                             
+car::residualPlots(mlm3_quad, layout = c(3, 5))
+```                                                                                                          
+
+```{r}                                                                                                       
+AIC(mlm3, mlm3_quad)
+```
+
+## Chapter 1 Notes
+
+### Shapiro-Wilk Test — W Statistic
+
+- W ranges from 0 (completely non-normal) to 1 (perfectly normal)
+- p < 0.05 means statistically non-normal, but the W value indicates the *practical* departure
+- With large n (e.g., n > 1000), Shapiro-Wilk becomes very sensitive — even trivial deviations yield p < 0.05
+- W = 0.99 with large n is practically normal; the Central Limit Theorem protects inference
+
+| Sample Size | Sensitivity |
+|---|---|
+| Small (n=30) | W ≈ 0.93 or lower needed for p < 0.05 |
+| Large (n=1,649) | Even W ≈ 0.999 can yield p < 0.05 |
+
+### Normality Assumption in Practice
+
+- Normality is the *least critical* regression assumption
+- For inference (p-values, CIs): the CLT covers you at large n
+- For prediction intervals: normality matters more, especially in the tails
+
+| Assumption | Why It Matters |
+|---|---|
+| **Linearity** | Biased estimates if violated |
+| **Homoscedasticity** | Unreliable standard errors if violated |
+| **Independence** | Can completely invalidate inference if violated |
+| **Normality of residuals** | Least critical, especially at large n |
+
+### AIC Interpretation
+
+- Lower AIC = better model (think golf score)
+- Penalises model complexity (more parameters = higher AIC penalty)
+- Large drops (e.g., >10 units) indicate meaningful improvement
+
+### `residualPlots` — What to Focus On
+
+- Focus on the *original variable rows*, not `I(x^2)` rows
+- Tests whether non-linearity in each predictor is resolved by added terms
+- `I(x^2)` rows flagging significance means even higher-order terms or transformations are needed
+
+### Polynomials vs. Transformations
+
+- `x^2` only captures symmetric (parabolic) non-linearity
+- For skewed, exponential, or plateau relationships, transformations are more appropriate:
+
+| Relationship Type | Recommended Transformation |
+|---|---|
+| Right-skewed | `log(x)` or `log(x+1)` if zeros are present |
+| Plateau effect | `sqrt(x)` |
+| Exponential decay | `log(x)` |
+
+### Revealed Non-Linearity After Model Improvement
+
+- Adding quadratic terms reduces residual noise (lower Residual Standard Error, RSE — the average size of model residuals)
+- It's the standard deviation of the residuals, calculated as:
+
+  $$RSE = \sqrt{\frac{\sum(y_i - \hat{y}_i)^2}{n - p - 1}}$$
+
+  - $y_i - \hat{y}_i$ = residuals
+  - $n$ = number of observations
+  - $p$ = number of predictors (the $-1$ corrects for degrees of freedom)
+- Smaller residuals → higher statistical power → previously hidden non-linearities become detectable
+- Variables that appeared linear before may show significance after model refinement
+- This is expected and not a mistake — it reflects improved model precision
+
+### Iterative Modelling Workflow
+
+- residualPlots → add quadratic terms or transformations → re-run step() to drop redundant variables → residualPlots again → repeat until convergence
+- Convergence = no significant patterns in residualPlots, or improvements become negligible
+- Perfect normality/linearity is rarely achievable with real-world data — document remaining issues as limitations
